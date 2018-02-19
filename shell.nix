@@ -14,11 +14,6 @@
 
 /* Usage:
 
-  nix-shell
-  cabal configure 
-  cabal build
-  cabal run
-
 */
 
 ########################################
@@ -81,65 +76,7 @@ sources = {
     fetchSubmodules = true;
     sha256          = "1f0xhwq4wvf5c6w8qhvpcn30jaxxq29s2x3iy8bml3a65fpvj0sh";
   };
-
-# PROBLEM
-# Warning:
-#     This package indirectly depends on multiple versions of the same package. This is very likely to cause a compile failure.
-#       package haskell-src-meta (haskell-src-meta-0.8.0.1-1HfhwjlpuugEHqUXKk8ROg) requires haskell-src-exts-1.19.1-GkJUFo8Rp3b1KlAdoTXU6c
-#       package reflex (reflex-0.5) requires haskell-src-exts-1.20.1-835K5nW7Qg0K3DUFrUYhiW
-# 
-# SOLUTION
-# -f-use-template-haskell 
-#   if flag(use-template-haskell)
-#     cpp-options: -DUSE_TEMPLATE_HASKELL
-#     build-depends:
-#       dependent-sum >= 0.3 && < 0.5,
-#       haskell-src-exts >= 1.16 && < 1.21,
-#       haskell-src-meta >= 0.6 && < 0.9,
-#       template-haskell >= 2.9 && < 2.13
-#     exposed-modules:
-#       Reflex.Dynamic.TH
-#     other-extensions: TemplateHaskell
-
-  # TODO `subdir ? null`
-  reflex-dom = fetchFromGitHub {
-    owner           = "reflex-frp";
-    repo            = "reflex-dom"; 
-    rev             = "212dca4b7ff323dca423f2dd934341bdee7ea2c5";
-    #fetchSubmodules = true;
-    sha256          = "0wv8xwr4bv2zb8qz3kf7nq2ixjg2hmyccxppgpwis3wmjai89frk";
-  };
-
-#   # TODO `subdir ? null`
-#   reflex-dom = fetchFromGitHub {
-#     owner           = "reflex-frp";
-#     repo            = "reflex-dom/reflex-dom"; # lol
-#     rev             = "212dca4b7ff323dca423f2dd934341bdee7ea2c5";
-# #    fetchSubmodules = true;
-#     sha256          = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-#   };
-
-    # This is where to put the output from nix-prefetch-git
-    #
-    # This is based on the results o
-    #   nix-prefetch-git http://github.com/ekmett/mtl
-    #
-    # For general git fetching:
-    #
-    # mtl = fetchgit {
-    #   url = "http://github.com/ekmett/mtl";
-    #   rev = "f75228f7a750a74f2ffd75bfbf7239d1525a87fe";
-    #   sha256= "032s8g8j4djx7y3f8ryfmg6rwsmxhzxha2qh1fj15hr8wksvz42a";
-    # };
-    #
-    # Or, more efficient for github repos:
-    #
-    # mtl = fetchFromGitHub {
-    #   owner = "ekmett";
-    #   repo = "mtl";
-    #   rev = "f75228f7a750a74f2ffd75bfbf7239d1525a87fe";
-    #   sha256= "032s8g8j4djx7y3f8ryfmg6rwsmxhzxha2qh1fj15hr8wksvz42a";
-    # };
+  
 };
 
 in
@@ -228,17 +165,14 @@ myHaskellOverlaysWith = self: super: let
    # Add Haskell Packages Below           #
    ######################################## 
 
-  spiros = local_ ../spiros;
+   # spiros = local_ ../spiros;
 
-    # spiros = github2nix_ {
-    #   owner  = "sboosali";
-    #   repo   = "spiros";
-    #   rev    = "f6c86509cfa1b198c5deb4b89b3dadf6184ea1d0"; 
-    #   sha256 = "0bvxgp1mvlpwzr9qdpjs20qs4i813wnhrsl3nq25r8v68x6fblhk";
-    # };
-      # NOTE
-      # latest needs ghc-8.2.2
-      # rev "2b7517f27242863ba153bc045dd269b348df05aa" 
+    spiros = github2nix_ {
+      owner  = "sboosali";
+      repo   = "spiros";
+      rev    = "e0b3a1e2eee3a44a450444bf36f722a6f14d0376"; 
+      sha256 = "1rgzn5wrj7lix5wgxsinmihnkrsppbva569i3wy7ypyjhc85ca0p";
+    };
 
  /* 
 
@@ -270,59 +204,10 @@ myHaskellOverlaysWith = self: super: let
 in
 ########################################
 let
-
-### OTHER OVERRIDES
  
 modifiedHaskellPackages = haskellPackagesWithHoogle.override {
-  overrides = self: super: {
-
-
-     # reflex     =
-     #   self.callPackage (cabal2nixResult "-f-use-template-haskell" sources.reflex) {
-     #  };
-
-     # #NOTE `reflex-dom` and `reflex-dom-core` are in the same github repo, called `reflex-dom`
-     # reflex-dom-core =
-     #   self.callPackage (cabal2nixResult "--subpath reflex-dom-core" sources.reflex-dom) {
-     #     inherit (self) reflex;
-     #   };
-
-     # reflex-dom =
-     #   self.callPackage (cabal2nixResult "--subpath reflex-dom -f-use-warp -fbuild-examples" sources.reflex-dom) {
-     #     inherit (self) reflex reflex-dom-core;
-     #   };
-
-     # jsaddle-warp =
-     #   hs.dontCheck super.jsaddle-warp;
-     #   #
-     #   # Setup: Encountered missing dependencies:
-     #   # doctest >=0.10.1 && <0.12, websockets >=0.9.5.0 && <0.11
-
-     # websockets = 
-     #  self.callHackage "websockets" "0.10.0.0" {};
-
-     # exception-transformers =
-     #   hs.dontCheck super.exception-transformers;
-     #  #       # Setup: Encountered missing dependencies:
-     #  #       # HUnit >=1.2 && <1.6
-     #  #       # builder for ‘/nix/store/365zv27f15qplgd6gd58fa8v26x2gg5z-exception-transformers-0.4.0.5.drv’ failed with exit code 1
-
-     #  # Add various dependencies here.
-     #  #
-     #  # Local dependencies:
-     #  # my-dependency = self.callPackage ./deps/my-dependency {};
-     #  #
-     #  # Local dependencies with tests disabled:
-     #  # my-dependency = lib.dontCheck (self.callPackage ./deps/my-dependency {});
-     #  #
-     #  # Git dependencies:
-     #  # mtl = self.callPackage (cabal2nixResult sources.mtl) {};
-  };
+  overrides = myHaskellOverlaysWith;
 };
-
-in
-########################################
-let
 
 ### DERIVATION / ENVIRONMENT
   

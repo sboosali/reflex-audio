@@ -165,6 +165,9 @@ library
 -- ekmett 
              , exceptions
              , lens
+-- audio
+             , ALUT
+             , OpenAL
 
 -- other packages 
 
