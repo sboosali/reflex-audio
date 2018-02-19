@@ -102,17 +102,22 @@ runALUT_ action = withProgNameAndArgs runALUT $
   \_executableName _arguments -> do
     action
 
+runALUTWith actionWith = withProgNameAndArgs runALUT $ do
+  \_executableName arguments -> do
+    actionWith arguments
+
 ----------------------------------------
 
 -- This program plays a 440Hz tone using a variety of waveforms.
 mainWith :: [String] -> IO ()
-mainWith _ = do
-   withProgNameAndArgs runALUT $ \_progName _args ->
+mainWith _ = runALUTWith $ \arguments ->
       mapM_ playTone [ Sine, Square, Sawtooth, (const (const WhiteNoise)), Impulse ]
-  
-playTone :: (Frequency -> Phase -> Duration -> SoundDataSource a) -> IO ()
-playTone soundDataSource = do
-   buf <- createBuffer (soundDataSource 440 0 1)
+
+playTone
+  :: (Frequency -> Phase -> Duration -> SoundDataSource a)
+  -> IO ()
+playTone toSource = do
+   buf <- createBuffer (toSource 440 0 1)
    source <- genObjectName
    buffer source $= Just buf
    play [source]
