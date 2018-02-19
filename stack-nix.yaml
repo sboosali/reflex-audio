@@ -1,0 +1,19 @@
+resolver: nightly-2018-01-22 
+
+nix:
+  enable: true
+  pure:   true
+  packages:
+  - zlib
+
+packages:
+- ./
+
+# - location:
+#     git:    https://github.com/sboosali/spiros
+#     commit: 0c5f3584e73ae3e4c00b0a142d2024c241ac3032
+#   extra-dep: true
+#   subdirs: [.] 
+
+extra-deps: 
+- spiros-0.0.1

@@ -1,0 +1,315 @@
+name:                reflex-audio
+version:             0.0.0
+cabal-version:       >=1.24
+
+----------------------------------------
+
+build-type:          Simple 
+category:            Data 
+synopsis:            TODO 
+description:         
+ .
+ TODO
+ . 
+ See the source of "Reflex.Audio.Example" for an example.
+ .
+ Quickstart:
+ .
+ @
+ import Reflex.Audio
+ \-- TODO
+ @
+ .
+ Transitive dependencies:
+ .
+ .
+ <<reflex-audio-dependencies.png>>
+ .
+
+homepage:            http://github.com/sboosali/reflex-audio#readme
+bug-reports:         http://github.com/sboosali/reflex-audio/issues
+author:              Spiros Boosalis
+maintainer:          samboosalis@gmail.com
+copyright:           2018 Spiros Boosalis
+license:             BSD3
+license-file:        LICENSE
+stability:           provisional
+tested-with:
+  GHC == 8.2.2
+-- GHC == 8.0.2
+
+-- PVP
+-- https://wiki.haskell.org/Package_versioning_policy
+-- "A.B is known as the major version number, and C the minor version number."
+
+----------------------------------------
+
+extra-source-files:
+  README.md
+  stack.yaml
+  .travis.yml
+  HLint.hs
+
+-- data-files:
+--   data/
+
+source-repository head
+  type:     git
+  location: https://github.com/sboosali/reflex-audio
+
+----------------------------------------
+-- FLAGS
+
+-- You can disable the doctests test suite with -f-test-doctests.
+flag test-docs
+  default:     False
+  description: Run the doctests (with the eponymous `doctest`), called the `test documentation` unit (in this cabal file). 
+  manual:      True
+
+-- You can disable the hunit test suite with -f-test-hunit. 
+flag test-unit
+  default:     False
+  description: Run the unit tests, called the `test unit` unit (in this cabal file).  
+  manual:      True
+
+flag test-properties
+  default:     False
+  description: Run the property tests (i.e. QuickCheck), called the `test properties` unit (in this cabal file).  
+  manual:      True
+
+flag test-macros
+  default: False
+  description: Run any macro tests (i.e. TemplateHaskell), called the `test templates` unit (in this cabal file).  
+  manual:  True
+
+flag bench-speed
+  default:     False
+  description: Execute the benchmarks (which may take a long time).
+  manual:      True
+
+flag dump-splices
+  default:     False
+  description: Make the `template` test suite dump its template-haskell splices.
+  manual:      True
+
+----------------------------------------
+-- LIBRARY
+
+library
+ hs-source-dirs:      sources
+
+ ghc-options:
+  -Wall
+  -Wcompat
+
+  -- disable
+  -Wno-unticked-promoted-constructors
+
+  -- enable
+  -Wincomplete-uni-patterns
+  -Wincomplete-record-updates
+  -Widentities
+  -Wmissing-methods
+
+  -- raise a warning into an error
+  -Werror=missing-fields
+
+  -- use `typed-holes`, not `undefined`, during development
+  -fdefer-typed-holes
+  -Wtyped-holes
+
+ default-language:   Haskell2010
+ -- NOTE -XNoImplicitPrelude 
+ default-extensions: NoImplicitPrelude 
+                     PackageImports AutoDeriveTypeable DeriveDataTypeable DeriveGeneric
+                     DeriveFunctor DeriveFoldable DeriveTraversable
+                     LambdaCase EmptyCase TypeOperators PostfixOperators
+                     ViewPatterns BangPatterns KindSignatures
+                     NamedFieldPuns RecordWildCards TupleSections
+                     MultiWayIf DoAndIfThenElse EmptyDataDecls
+                     MultiParamTypeClasses FlexibleContexts FlexibleInstances
+                     TypeFamilies FunctionalDependencies
+                     ScopedTypeVariables StandaloneDeriving
+
+ other-extensions: TemplateHaskell
+
+ exposed-modules:
+                 Reflex.Audio
+                 Reflex.Audio.Types
+                 Reflex.Audio.Core		
+                 Reflex.Audio.Example                
+ other-modules:
+
+                 Reflex.Audio.Extra            
+                 -- Paths_reflex_audio
+-- autogen-modules:
+                 -- Paths_reflex_audio
+
+ build-depends:
+               base >=4.7 && <5
+
+-- mine 
+             , spiros
+             -- , enumerate 
+
+-- (extended) standard library 
+             , deepseq
+             , hashable
+             , containers
+             , unordered-containers
+             , text 
+             , bytestring
+             , transformers
+             , mtl
+
+-- ekmett 
+             , exceptions
+             , lens
+
+-- other packages 
+
+----------------------------------------
+-- EXECUTABLES
+
+executable example-reflex-audio
+ hs-source-dirs:      executables
+ main-is:             Main.hs
+
+ default-language:    Haskell2010
+ ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+
+ build-depends:
+    base
+  , reflex-audio
+
+----------------------------------------
+-- TESTS
+
+
+-- $ stack test unit
+test-suite unit
+ hs-source-dirs:      tests
+ main-is:             UnitTests.hs
+ type:                exitcode-stdio-1.0
+
+ default-language:    Haskell2010
+ ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+
+ other-modules:
+  Reflex.Audio.Test
+
+ if !flag(test-unit)
+    buildable: False
+ else
+    build-depends:
+       base
+     , reflex-audio 
+     , tasty
+  
+
+-- $ stack test properties 
+test-suite properties 
+ hs-source-dirs:      tests
+ main-is:             PropertyTests.hs
+
+ type:                exitcode-stdio-1.0
+ default-language:    Haskell2010
+ ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+
+ other-modules:
+  Reflex.Audio.Property 
+
+ build-depends:
+    base
+  , reflex-audio
+  , QuickCheck 
+  , tasty
+  , tasty-quickcheck
+  , hedgehog
+  , tasty-hedgehog
+
+
+-- $ stack test documentation
+test-suite documentation 
+
+ hs-source-dirs:      tests
+ main-is:             DocTests.hs
+ type:                exitcode-stdio-1.0
+
+ default-language:    Haskell2010
+ ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+
+ if (!flag(test-docs) || impl(ghcjs))
+    buildable: False
+    -- (`ghcjsi` just doesn't work? or `doctest` needs the GHC API?) else
+    build-depends:
+       base
+     , reflex-audio
+     , doctest
+
+
+-- $ stack test templates 
+-- Template Haskell 
+-- Verify that Template Haskell expansion works
+test-suite templates
+  hs-source-dirs:      tests
+  main-is:             TemplateHaskellTests.hs
+
+  type:             exitcode-stdio-1.0
+  default-language: Haskell2010
+  ghc-options:      -Wall -threaded
+
+  if flag(dump-splices)
+    ghc-options: -ddump-splices
+
+  if !flag(test-macros)
+     buildable: False
+  else
+     build-depends:
+         base
+       , reflex-audio
+       , lens
+
+
+----------------------------------------
+-- BENCHMARKS
+
+-- $ stack bench 
+benchmark speed
+ hs-source-dirs:      benchmarks
+ main-is:             Bench.hs
+
+ type:             exitcode-stdio-1.0
+ default-language: Haskell2010
+ ghc-options:
+      -Wall -threaded
+       -O2 -fdicts-cheap -funbox-strict-fields
+
+ if !flag(bench-speed)
+    buildable: False
+ else
+    build-depends:
+       base
+     , reflex-audio
+     , criterion
+     , deepseq
+
+
+----------------------------------------
+-- NOTES
+
+-- originally generated with this command:  
+-- 
+-- $ stack new reflex-audio https://raw.githubusercontent.com/sboosali/configuration/master/stack/templates/spirosboosalis.hsfiles -p "module:Reflex.Audio" -p "filepath:Reflex/Audio"
+-- 
+-- given this configuration in `~/.stack/config.yaml`: 
+-- 
+-- templates:
+--   params:
+--     author-email:    samboosalis@gmail.com 
+--     author-name:     Spiros Boosalis 
+--     github-username: sboosali 
+--     copyright:       2018 Spiros Boosalis  
+--     synopsis:        TODO 
+
+----------------------------------------
