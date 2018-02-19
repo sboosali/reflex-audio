@@ -1,12 +1,15 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 
 {-|
 
 -}
 module Reflex.Audio.Extra
- ( module Reflex.Audio.Extra
- , module Prelude.Spiros
+ ( module Prelude.Spiros
+ , module X
+ --, module Reflex.Audio.Extra
  ) where
 
-import Prelude.Spiros()
+import Data.StateVar as X
 
+import Prelude.Spiros hiding (get)
+
+----------------------------------------

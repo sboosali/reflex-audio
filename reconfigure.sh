@@ -2,8 +2,7 @@
 set -e
 ########################################
 
-cabal2nix .         > "reflex-audio-default.nix"
-cabal2nix . --shell > "reflex-audio-shell.nix"
+cabal2nix . > "nix/reflex-audio.nix"
 
 ./provision.sh
 

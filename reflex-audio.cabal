@@ -165,6 +165,8 @@ library
 -- ekmett 
              , exceptions
              , lens
+             , StateVar
+
 -- audio
              , ALUT
              , OpenAL

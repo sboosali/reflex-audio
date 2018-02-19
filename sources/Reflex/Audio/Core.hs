@@ -4,10 +4,9 @@
 
 -}
 module Reflex.Audio.Core where
-import Reflex.Audio.Extra()
-import Reflex.Audio.Types()
+-- import Reflex.Audio.Extra()
+-- import Reflex.Audio.Types()
 
-import Prelude.Spiros
+-- import Prelude.Spiros
 
-version = "0.0.0"
 

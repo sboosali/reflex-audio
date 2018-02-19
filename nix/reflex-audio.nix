@@ -1,7 +1,7 @@
-{ mkDerivation, base, bytestring, containers, deepseq, doctest
-, exceptions, hashable, hedgehog, lens, mtl, QuickCheck, spiros
-, stdenv, tasty, tasty-hedgehog, tasty-quickcheck, text
-, transformers, unordered-containers
+{ mkDerivation, ALUT, base, bytestring, containers, deepseq
+, doctest, exceptions, hashable, hedgehog, lens, mtl, OpenAL
+, QuickCheck, spiros, StateVar, stdenv, tasty, tasty-hedgehog
+, tasty-quickcheck, text, transformers, unordered-containers
 }:
 mkDerivation {
   pname = "reflex-audio";
@@ -10,8 +10,8 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base bytestring containers deepseq exceptions hashable lens mtl
-    spiros text transformers unordered-containers
+    ALUT base bytestring containers deepseq exceptions hashable lens
+    mtl OpenAL spiros StateVar text transformers unordered-containers
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [
