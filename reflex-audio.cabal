@@ -149,7 +149,7 @@ library
                base >=4.7 && <5
 
 -- mine 
-             , spiros
+             , spiros >=0.0.1
              -- , enumerate 
 
 -- (extended) standard library 
