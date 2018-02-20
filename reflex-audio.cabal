@@ -161,6 +161,10 @@ library
              , bytestring
              , transformers
              , mtl
+             , vector
+
+-- reflex
+             , reflex
 
 -- ekmett 
              , exceptions

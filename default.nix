@@ -1,7 +1,8 @@
 { mkDerivation, ALUT, base, bytestring, containers, deepseq
 , doctest, exceptions, hashable, hedgehog, lens, mtl, OpenAL
-, QuickCheck, spiros, stdenv, tasty, tasty-hedgehog
-, tasty-quickcheck, text, transformers, unordered-containers
+, QuickCheck, reflex, spiros, StateVar, stdenv, tasty
+, tasty-hedgehog, tasty-quickcheck, text, transformers
+, unordered-containers, vector
 }:
 mkDerivation {
   pname = "reflex-audio";
@@ -11,7 +12,8 @@ mkDerivation {
   isExecutable = true;
   libraryHaskellDepends = [
     ALUT base bytestring containers deepseq exceptions hashable lens
-    mtl OpenAL spiros text transformers unordered-containers
+    mtl OpenAL reflex spiros StateVar text transformers
+    unordered-containers vector
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [

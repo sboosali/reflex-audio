@@ -203,6 +203,24 @@ OpenAL does not define the units of measurement for distances. The application i
 
 
 
+
+
+Queuing Buffers with a Source
+OpenAL does not specify a built-in streaming mechanism. There is no mechanism to stream data into a buffer object. Instead, the API has a more flexible and versatile mechanism to queue buffers for sources. There are many ways to use this feature, with streaming being only one of them.
+
+Streaming is replaced by queuing static buffers. This effectively moves any multi-buffer caching into the application and allows the application to select how many buffers it wants to use, the size of the buffers, and whether these are re-used in cycle, pooled, or thrown away.
+
+Looping (over a finite number of repetitions) can be implemented by explicitly repeating buffers in the queue. Infinite loops can (theoretically) be accomplished by sufficiently large repetition counters. If only a single buffer is supposed to be repeated infinitely, using the respective source attribute loopingMode is recommended.
+
+Loop Points for restricted looping inside a buffer can in many cases be replaced by splitting the sample into several buffers and queuing the sample fragments (including repetitions) accordingly.
+
+Buffers can be queued, unqueued after they have been used, and either be deleted, or refilled and queued again. Splitting large samples over several buffers maintained in a queue has distinct advantages over approaches that require explicit management of samples and sample indices.
+
+
+
+
+
+
 Sound.OpenAL.AL.StringQueries
 
 alVendor :: GettableStateVar String 

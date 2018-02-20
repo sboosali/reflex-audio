@@ -57,18 +57,19 @@ let
 # "megarepos" which have multiple packages as subdirectories.
 repositories = {
 
-  reflex-dom = fetchFromGitHub {
-    owner           = "reflex-frp";
-    repo            = "reflex-dom"; 
-    rev             = "212dca4b7ff323dca423f2dd934341bdee7ea2c5";
-    sha256          = "0wv8xwr4bv2zb8qz3kf7nq2ixjg2hmyccxppgpwis3wmjai89frk";
-  };
+  # reflex-dom = fetchFromGitHub {
+  #   owner           = "reflex-frp";
+  #   repo            = "reflex-dom"; 
+  #   rev             = "212dca4b7ff323dca423f2dd934341bdee7ea2c5";
+  #   sha256          = "0wv8xwr4bv2zb8qz3kf7nq2ixjg2hmyccxppgpwis3wmjai89frk";
+  # };
 
 };
 
 # 
 sources = {
 
+  # 6a8c4efe9a181cc2d97900f5a7519c46cb13e0bb
   reflex = fetchFromGitHub {
     owner           = "reflex-frp";
     repo            = "reflex";
@@ -158,6 +159,24 @@ myHaskellOverlaysWith = self: super: let
  hackage_    = name: version:  hackage    name version {};
  github2nix_ = o:              github2nix o            {};
 
+ # more (local) utilities
+ haskell = pkgs.haskell.lib; 
+ #
+ skipTests         = haskell.dontCheck; 
+ skipDocumentation = haskell.dontHaddock;
+ skipBenchmarks    = haskell.dontBenchmark;
+ dropUpperBounds   = haskell.doJailbreak;
+ #
+ quicken   = p:
+  skipDocumentation (skipTests ( p));
+ loosen    = p:
+  skipDocumentation (skipTests (skipBenchmarks p));
+ dependsOn = package: dependencies: 
+  haskell.addBuildDepends package dependencies;
+ #
+ inherit (haskell);
+ #
+
  in
 
  {
@@ -173,6 +192,9 @@ myHaskellOverlaysWith = self: super: let
       rev    = "e0b3a1e2eee3a44a450444bf36f722a6f14d0376"; 
       sha256 = "1rgzn5wrj7lix5wgxsinmihnkrsppbva569i3wy7ypyjhc85ca0p";
     };
+
+   reflex = loosen (cabal2nix_ "reflex" sources.reflex);
+   exception-transformers = loosen (super.exception-transformers);
 
  /* 
 
