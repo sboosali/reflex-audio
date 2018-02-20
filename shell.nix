@@ -4,7 +4,7 @@
 , compiler ? "default"
 
 , withProfiling ? false
-, withHoogle    ? false 
+, withHoogle    ? false
 
 , doTest        ? false
 , doBenchmark   ? false
@@ -35,7 +35,7 @@ let
 
 ### UTILITIES
 
-skipTests       = haskell.dontCheck; 
+skipTests       = haskell.dontCheck;
 dropUpperBounds = haskell.doJailbreak;
 
 cabal2nixResult = options: src:
@@ -59,14 +59,14 @@ repositories = {
 
   reflex-dom = fetchFromGitHub {
     owner           = "reflex-frp";
-    repo            = "reflex-dom"; 
+    repo            = "reflex-dom";
     rev             = "212dca4b7ff323dca423f2dd934341bdee7ea2c5";
     sha256          = "0wv8xwr4bv2zb8qz3kf7nq2ixjg2hmyccxppgpwis3wmjai89frk";
   };
 
 };
 
-# 
+#
 sources = {
 
   reflex = fetchFromGitHub {
@@ -76,7 +76,7 @@ sources = {
     fetchSubmodules = true;
     sha256          = "1f0xhwq4wvf5c6w8qhvpcn30jaxxq29s2x3iy8bml3a65fpvj0sh";
   };
-  
+
 };
 
 in
@@ -85,12 +85,12 @@ let
 
 ### COMPILERS
 
-haskellPackagesWithCompiler = 
+haskellPackagesWithCompiler =
   if compiler == "default"
   then pkgs.haskellPackages
   else pkgs.haskell.packages.${compiler};
 
-haskellPackagesWithProfiling = 
+haskellPackagesWithProfiling =
   if withProfiling
   then haskellPackagesWithCompiler.override {
          overrides = self: super: {
@@ -98,7 +98,7 @@ haskellPackagesWithProfiling =
          };
        }
   else haskellPackagesWithCompiler;
-                 
+
 haskellPackagesWithHoogle =
   if withHoogle
   then haskellPackagesWithProfiling.override {
@@ -119,20 +119,20 @@ let
 
 NOTES
 
-* `local` / `github`: 
+* `local` / `github`:
    They call `import` directly, thus those directories require a `default.nix`
-* `cabal2nix` / `hackage` / `github2nix`: 
-   They call `cabal2nix`, which generates the `default.nix`, so they don't require the given directory to be a valid `nix` package. 
+* `cabal2nix` / `hackage` / `github2nix`:
+   They call `cabal2nix`, which generates the `default.nix`, so they don't require the given directory to be a valid `nix` package.
 
 */
 myHaskellOverlaysWith = self: super: let
 #myHaskellOverlaysWith = pkgs: self: super: let
 
  local      = path:
-              self.callPackage path; 
+              self.callPackage path;
 
  github     = o:
-              self.callPackage (pkgs.fetchFromGitHub o); 
+              self.callPackage (pkgs.fetchFromGitHub o);
 
              # o ::
              #      { owner           :: String
@@ -140,16 +140,16 @@ myHaskellOverlaysWith = self: super: let
              #        rev             :: String
              #        fetchSubmodules :: Bool
              #        sha256          :: String
-             #      } 
+             #      }
 
- cabal2nix  = name: source: 
+ cabal2nix  = name: source:
               self.callCabal2nix name source;
 
  hackage    = name: version:
               self.callHackage name version;
 
  github2nix = o:
-              cabal2nix o.repo (pkgs.fetchFromGitHub o); 
+              cabal2nix o.repo (pkgs.fetchFromGitHub o);
 
  # override the package without overriding any dependencies
  local_      = path:           local      path         {};
@@ -163,21 +163,21 @@ myHaskellOverlaysWith = self: super: let
  {
    ########################################
    # Add Haskell Packages Below           #
-   ######################################## 
+   ########################################
 
    # spiros = local_ ../spiros;
 
     spiros = github2nix_ {
       owner  = "sboosali";
       repo   = "spiros";
-      rev    = "e0b3a1e2eee3a44a450444bf36f722a6f14d0376"; 
+      rev    = "dbe489d428ec0c6f1700fde703cbdd90738b0f14";
       sha256 = "1rgzn5wrj7lix5wgxsinmihnkrsppbva569i3wy7ypyjhc85ca0p";
     };
 
- /* 
+ /*
 
-  # You can use `callHackage` and `callCabal2nix` 
-  # to bump package versions or build them from GitHub. 
+  # You can use `callHackage` and `callCabal2nix`
+  # to bump package versions or build them from GitHub.
   # e.g.
 
     spiros = self.spiros_loose;
@@ -190,10 +190,10 @@ myHaskellOverlaysWith = self: super: let
     spiros_github  = github2nix {
       owner  = "sboosali";
       repo   = "spiros";
-      rev    = "f6c86509cfa1b198c5deb4b89b3dadf6184ea1d0"; 
-      # "2b7517f27242863ba153bc045dd269b348df05aa" 
+      rev    = "f6c86509cfa1b198c5deb4b89b3dadf6184ea1d0";
+      # "2b7517f27242863ba153bc045dd269b348df05aa"
       # latest needs ghc-8.2.2
-      sha256 = 
+      sha256 =
          "0bvxgp1mvlpwzr9qdpjs20qs4i813wnhrsl3nq25r8v68x6fblhk";
     } {
     };
@@ -204,38 +204,38 @@ myHaskellOverlaysWith = self: super: let
 in
 ########################################
 let
- 
+
 modifiedHaskellPackages = haskellPackagesWithHoogle.override {
   overrides = myHaskellOverlaysWith;
 };
 
 ### DERIVATION / ENVIRONMENT
-  
+
 installationDerivation = modifiedHaskellPackages.callPackage ./. {};
 
 # development environment
 # for `nix-shell --pure`
-developmentDerivation = hs.linkWithGold 
+developmentDerivation = hs.linkWithGold
     (hs.addBuildDepends installationDerivation developmentPackages);
 
 developmentPackages = developmentHaskellPackages
-                   # ++ developmentEmacsPackages 
+                   # ++ developmentEmacsPackages
                    ++ developmentSystemPackages;
 
 developmentSystemPackages = with pkgs; [
-  
+
  cabal-install
 
  coreutils
- inotify-tools
-  
- emacs
- git
+ #inotify-tools
+
+ #emacs
+ #git
 
 ];
 
 developmentHaskellPackages = with modifiedHaskellPackages; [
-  
+
  # ghcid
  # ghc-mod
 
@@ -245,7 +245,7 @@ developmentHaskellPackages = with modifiedHaskellPackages; [
  hlint
  hoogle
  hindent
-  
+
 ];
 
  # developmentHaskellPackages = with Packages; [

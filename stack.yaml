@@ -1,20 +1,18 @@
-resolver: nightly-2018-01-22 
+resolver: nightly-2018-01-21
 
 nix:
-  enable: true
+  # enable: true
   pure:   false
   packages:
   - zlib
   - freealut
+  - freeglut
 
 packages:
 - ./
 
 - location:
     git:    https://github.com/sboosali/spiros
-    commit: e0b3a1e2eee3a44a450444bf36f722a6f14d0376
+    commit: dbe489d428ec0c6f1700fde703cbdd90738b0f14
   extra-dep: true
-  subdirs: [.] 
-
-extra-deps: 
-- spiros-0.0.1
+  subdirs: [.]

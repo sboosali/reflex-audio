@@ -8,16 +8,16 @@
    See the file LICENSE.
 -}
 
-{-| This module provides an example program. 
-Please read the source too <https://hackage.haskell.org/package/reflex-audio/docs/src/Reflex-Audio-Example.html (direct Hackage link)>. 
+{-| This module provides an example program.
+Please read the source too <https://hackage.haskell.org/package/reflex-audio/docs/src/Reflex-Audio-Example.html (direct Hackage link)>.
 
-Being a @library@ module, it's typechecked with the package, 
+Being a @library@ module, it's typechecked with the package,
 and thus should always build.
 
 Only public interfaces are imported (i.e. no @.Internal@s),
-and there are minimal other dependencies. 
+and there are minimal other dependencies.
 
-'main' is executed by the @reflex-audio-example@ executable. 
+'main' is executed by the @reflex-audio-example@ executable.
 
 -}
 
@@ -25,48 +25,74 @@ module Reflex.Audio.Example where
 
 import Reflex.Audio.Extra
 
+import Foreign.Marshal
+import Foreign.Ptr
 import Sound.ALUT
 
--- import System.Environment
+durationSeconds :: Float
+durationSeconds = 1
 
---import Sound.OpenAL.AL.StringQueries
+samplingHz :: Float
+samplingHz = 44100
 
-----------------------------------------
+bufferLength :: Int
+bufferLength = truncate $ durationSeconds * samplingHz
+
+soundHz :: Float
+soundHz = 261.625565
+
+shrtMax :: Int
+shrtMax = 32767
+
+fillBuffer :: Buffer -> Ptr ALshort -> IO ()
+fillBuffer buf arr = do
+    pokeArray arr bytes
+    bufferData buf $= BufferData (MemoryRegion arr (16 * fromIntegral bufferLength)) Mono16 samplingHz
+    where
+        bytes = [truncate ((sin (2.0 * pi * soundHz * (fromIntegral i) / (fromIntegral bufferLength))) * (fromIntegral shrtMax))
+                    | i <- [0 .. bufferLength - 1]]
+
+playTone :: IO ()
+playTone = do
+    source <- genObjectName
+    buf <- genObjectName
+    allocaArray bufferLength $ fillBuffer buf
+    buffer source $= Just buf
+    play [source]
+    sleep 1
 
 main :: IO ()
-main = do
-  mainInfo
-  -- mainWith []
+main = runALUT_ playTone
 
 ----------------------------------------
 
-mainInfo = runALUT_ $ do
-  putStrLn "\n[version]"
-  alVersion >>= print
+-- mainInfo = runALUT_ $ do
+--   putStrLn "\n[version]"
+--   alVersion >>= print
 
-  vendor   <- get alVendor
-  renderer <- get alRenderer
+--   vendor   <- get alVendor
+--   renderer <- get alRenderer
 
-  putStrLn "\n[vendor]"
-  print vendor
-  
-  putStrLn "\n[renderer]"
-  print renderer
+--   putStrLn "\n[vendor]"
+--   print vendor
 
-  putStrLn "\n[extensions]"
-  alExtensions >>= traverse_ print
+--   putStrLn "\n[renderer]"
+--   print renderer
+
+--   putStrLn "\n[extensions]"
+--   alExtensions >>= traverse_ print
 
   {- e.g.
 
     [version]
     "1.1 ALSOFT 1.18.2"
-    
+
     [vendor]
     "OpenAL Community"
-    
+
     [renderer]
     "OpenAL Soft"
-    
+
     [extensions]
     "AL_EXT_ALAW"
     "AL_EXT_BFORMAT"
@@ -94,13 +120,11 @@ mainInfo = runALUT_ $ do
     "AL_SOFT_source_length"
     "AL_SOFT_source_resampler"
     "AL_SOFT_source_spatialize"
-    
-  -}
-  
 
-runALUT_ action = withProgNameAndArgs runALUT $ 
-  \_executableName _arguments -> do
-    action
+  -}
+
+
+runALUT_ action = withProgNameAndArgs runALUT $ (const . const) action
 
 runALUTWith actionWith = withProgNameAndArgs runALUT $ do
   \_executableName arguments -> do
@@ -108,20 +132,20 @@ runALUTWith actionWith = withProgNameAndArgs runALUT $ do
 
 ----------------------------------------
 
--- This program plays a 440Hz tone using a variety of waveforms.
-mainWith :: [String] -> IO ()
-mainWith _ = runALUTWith $ \arguments ->
-      mapM_ playTone [ Sine, Square, Sawtooth, (const (const WhiteNoise)), Impulse ]
+-- -- This program plays a 440Hz tone using a variety of waveforms.
+-- mainWith :: [String] -> IO ()
+-- mainWith _ = runALUTWith $ \arguments ->
+--       mapM_ playTone [ Sine, Square, Sawtooth, (const (const WhiteNoise)), Impulse ]
 
-playTone
-  :: (Frequency -> Phase -> Duration -> SoundDataSource a)
-  -> IO ()
-playTone toSource = do
-   buf <- createBuffer (toSource 440 0 1)
-   source <- genObjectName
-   buffer source $= Just buf
-   play [source]
-   sleep 1
+-- playTone
+--   :: (Frequency -> Phase -> Duration -> SoundDataSource a)
+--   -> IO ()
+-- playTone toSource = do
+--    buf <- createBuffer (toSource 440 0 1)
+--    source <- genObjectName
+--    buffer source $= Just buf
+--    play [source]
+--    sleep 1
 
 {-
 
@@ -151,13 +175,13 @@ type Duration = Float Source
 
 data SoundDataSource a
 =
-File FilePath	 
-FileImage (MemoryRegion a)	 
-HelloWorld	 
-Sine Frequency Phase Duration	 
-Square Frequency Phase Duration	 
-Sawtooth Frequency Phase Duration	 
-Impulse Frequency Phase Duration	 
+File FilePath
+FileImage (MemoryRegion a)
+HelloWorld
+Sine Frequency Phase Duration
+Square Frequency Phase Duration
+Sawtooth Frequency Phase Duration
+Impulse Frequency Phase Duration
 WhiteNoise Duration
 
 
@@ -205,7 +229,7 @@ OpenAL does not define the units of measurement for distances. The application i
 
 Sound.OpenAL.AL.StringQueries
 
-alVendor :: GettableStateVar String 
+alVendor :: GettableStateVar String
 alRenderer :: GettableStateVar String
 
 
@@ -286,7 +310,7 @@ data ContextAttribute =
 createContext :: MonadIO m => Device -> [ContextAttribute] -> m (Maybe Context)
 
 
-allAttributes :: Device -> GettableStateVar [ContextAttribute] 
+allAttributes :: Device -> GettableStateVar [ContextAttribute]
 Contains the attribute list for the current context of the specified device.
 
 
@@ -295,12 +319,12 @@ Contains the attribute list for the current context of the specified device.
 
 
 
-data Device 
+data Device
 The abstract device type.
 
 ALC introduces the notion of a device. A device can be, depending on the implementation, a hardware device, or a daemon/OS service/actual server. This mechanism also permits different drivers (and hardware) to coexist within the same system, as well as allowing several applications to share system resources for audio, including a single hardware output device.
 
-openDevice :: MonadIO m => Maybe String -> m (Maybe Device) 
+openDevice :: MonadIO m => Maybe String -> m (Maybe Device)
 
 openDevice allows the application (i.e. the client program) to connect to a device (i.e. the server). If the function returns Nothing, then no sound driver/device has been found. The argument to openDevice specifies a certain device or device configuration.
 
