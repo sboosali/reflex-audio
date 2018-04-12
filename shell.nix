@@ -29,6 +29,13 @@ haskell = nixpkgs.haskell.lib;
 #haskell = lib;
 hs = pkgs.haskell.lib; #TODO rm
 
+### CONSTANTS
+
+operatingSystem = stdenv.system; 
+# e.g. "x86_64-linux", 
+
+#? builtins.currentSystem
+
 in
 ########################################
 let
